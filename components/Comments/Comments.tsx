@@ -120,7 +120,7 @@ const Comments: FC<Props> = ({ comments, onCommentReply }) => {
     <FlatList
       style={{ backgroundColor: "white", padding: 16 }}
       data={groupedComments}
-      keyExtractor={(item) => `${item.id.toString()}${item.created_at}`}
+      keyExtractor={(item) => item.id.toString() + item.created_at}
       renderItem={renderItem}
     />
   )

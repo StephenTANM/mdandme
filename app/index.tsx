@@ -57,7 +57,7 @@ const Index = () => {
         <FlatList
           data={posts}
           renderItem={renderFeedCard}
-          keyExtractor={(item) => `${item.id.toString()}${item.created_at}`}
+          keyExtractor={(item) => item.id.toString() + item.created_at}
           contentContainerStyle={contentContainerStyle}
           onEndReached={() => {
             if (!isFetching) {
