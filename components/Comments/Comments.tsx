@@ -66,7 +66,7 @@ const Comments = ({ comments }: { comments: Record<string, Comment> }) => {
           hasComments={item.children.length > 0}
           onCommentPress={expandThread}
           onHugPress={() => {}}
-          onReplyPress={() => {}}
+          onReplySend={() => {}}
         />
       </View>
       {threadExpanded &&

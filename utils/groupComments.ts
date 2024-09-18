@@ -17,7 +17,7 @@ const groupComments = (comments: Record<string, Comment>) => {
     }
   })
 
-  return Object.values(grouped)
+  return Object.values(grouped).reverse()
 }
 
 export default groupComments

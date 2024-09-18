@@ -38,7 +38,8 @@ const useFeed = (): UseFeedResult => {
 
   const { mutate } = useMutation({
     mutationFn: updatePost,
-    onMutate: async () => {
+
+    onSuccess: async () => {
       await query.refetch()
     },
   })

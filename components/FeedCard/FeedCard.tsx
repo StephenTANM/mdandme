@@ -19,15 +19,11 @@ const { containerStyle, titleContainerStyle, insetShadowStyle, paddingStyle } =
 interface Props {
   readonly title: string
   readonly content: string
-  readonly onExpand: (layout: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }) => any
+  readonly onExpand: () => any
   readonly comments: Record<string, Comment>
-  readonly onHug: () => void
+  readonly onHug: (_: boolean) => void
   readonly hugs: number
+  readonly onReply: (_: string) => void
 }
 
 const FeedCard: FC<Props> = ({
@@ -37,6 +33,7 @@ const FeedCard: FC<Props> = ({
   hugs,
   onExpand,
   onHug,
+  onReply,
 }) => {
   const [postLayout, setPostLayout] = useState({
     x: 0,
@@ -59,7 +56,7 @@ const FeedCard: FC<Props> = ({
   const expandHeight = () => {
     const isExpanding = maxHeight.value === 150
     if (isExpanding) {
-      onExpand(postLayout)
+      onExpand()
     }
     maxHeight.value = isExpanding ? contentHeight + postLayout.height : 150
     shadowOpacity.value = isExpanding ? 0 : 1 // Hide shadow when expanded, show when collapsed
@@ -69,7 +66,9 @@ const FeedCard: FC<Props> = ({
     setShowComments((prev) => !prev)
   }
 
-  const startReply = () => {}
+  const startReply = (text: string) => {
+    onReply(text)
+  }
 
   const layoutHandle = (event: LayoutChangeEvent) => {
     const layout = event.nativeEvent.layout
@@ -118,7 +117,7 @@ const FeedCard: FC<Props> = ({
         <InteractionBar
           onHugPress={onHug}
           onCommentPress={expandComments}
-          onReplyPress={startReply}
+          onReplySend={startReply}
           hasComments={Object.keys(comments).length > 0}
           hasHugs
           commentCount={Object.keys(comments).length}

@@ -1,4 +1,9 @@
-import { View, TouchableOpacity } from "react-native"
+import {
+  View,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+} from "react-native"
 import React, { FC, useState } from "react"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
@@ -8,17 +13,25 @@ import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  FadeInUp,
+  FadeOutUp,
 } from "react-native-reanimated"
 import MDText from "../MDText/MDText"
 
-const { containerStyle, interactionStyle } = InteractionBarStyles
+const {
+  containerStyle,
+  interactionStyle,
+  paddingStyle,
+  inputStyle,
+  inputContainerStyle,
+} = InteractionBarStyles
 
 interface Props {
   readonly commentCount?: number
   readonly hasComments: boolean
   readonly onHugPress?: (_: boolean) => void
   readonly onCommentPress?: () => void
-  readonly onReplyPress?: () => void
+  readonly onReplySend?: (_: string) => void
   readonly hasHugs?: boolean
   readonly hugCount?: number
 }
@@ -26,13 +39,15 @@ interface Props {
 const InteractionBar: FC<Props> = ({
   commentCount = 0,
   hasComments,
-  onHugPress = () => {},
+  onHugPress = (_: boolean) => {},
   onCommentPress,
-  onReplyPress,
+  onReplySend = () => {},
   hasHugs,
   hugCount,
 }) => {
-  const [hugged, setHugged] = useState(false)
+  const [hugged, setHugged] = useState<boolean>(false)
+  const [replying, setReplying] = useState<boolean>(false)
+  const [replyText, setReplyText] = useState<string>("")
 
   // Shared value to control the scale for the heartbeat animation
   const scale = useSharedValue(1)
@@ -53,28 +68,63 @@ const InteractionBar: FC<Props> = ({
     }, 200)
   }
 
-  return (
-    <View style={containerStyle}>
-      {hasHugs && (
-        <TouchableOpacity
-          onPress={handleHeartPress}
-          style={interactionStyle}
-          activeOpacity={0.8}
-        >
-          <Animated.View style={animatedStyles}>
-            <FontAwesome
-              name="heartbeat"
-              size={18}
-              color={hugged ? "#C51104" : "#497e91"}
-            />
-          </Animated.View>
-          <MDText color={hugged ? "white" : "#497e91"}>{hugCount} Hugs</MDText>
-        </TouchableOpacity>
-      )}
+  const onReply = () => {
+    setReplying((prev) => !prev)
+  }
 
-      {hasComments && (
+  const onSend = () => {
+    onReplySend(replyText)
+    setReplying(false)
+  }
+
+  const onBlur = () => {
+    if (replyText === "") {
+      setTimeout(() => {
+        setReplying(false)
+      }, 1000)
+    }
+  }
+
+  return (
+    <View style={paddingStyle}>
+      <View style={containerStyle}>
+        {hasHugs && (
+          <TouchableOpacity
+            onPress={handleHeartPress}
+            style={interactionStyle}
+            activeOpacity={0.8}
+          >
+            <Animated.View style={animatedStyles}>
+              <FontAwesome
+                name="heartbeat"
+                size={18}
+                color={hugged ? "#C51104" : "#497e91"}
+              />
+            </Animated.View>
+            <MDText color={hugged ? "white" : "#497e91"}>
+              {hugCount} Hugs
+            </MDText>
+          </TouchableOpacity>
+        )}
+
+        {hasComments && (
+          <TouchableOpacity
+            onPress={onCommentPress}
+            style={[
+              interactionStyle,
+              {
+                backgroundColor: "white",
+              },
+            ]}
+            activeOpacity={0.8}
+          >
+            <FontAwesome name="comments-o" size={24} color="#497e91" />
+            <MDText color="#497e91">{commentCount} Comments</MDText>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity
-          onPress={onCommentPress}
+          onPress={onReply}
           style={[
             interactionStyle,
             {
@@ -83,23 +133,36 @@ const InteractionBar: FC<Props> = ({
           ]}
           activeOpacity={0.8}
         >
-          <FontAwesome name="comments-o" size={24} color="#497e91" />
-          <MDText color="#497e91">{commentCount} Comments</MDText>
+          <MDText color="#497e91">Reply</MDText>
         </TouchableOpacity>
+      </View>
+      {replying && (
+        <Animated.View
+          entering={FadeInUp}
+          exiting={FadeOutUp}
+          style={inputContainerStyle}
+        >
+          <TextInput
+            multiline
+            autoFocus
+            style={inputStyle}
+            onChangeText={setReplyText}
+            onBlur={onBlur}
+          />
+          <TouchableOpacity
+            onPress={onSend}
+            style={[
+              interactionStyle,
+              {
+                backgroundColor: "white",
+              },
+            ]}
+            activeOpacity={0.8}
+          >
+            <MDText color="#497e91">Send</MDText>
+          </TouchableOpacity>
+        </Animated.View>
       )}
-
-      <TouchableOpacity
-        onPress={onReplyPress}
-        style={[
-          interactionStyle,
-          {
-            backgroundColor: "white",
-          },
-        ]}
-        activeOpacity={0.8}
-      >
-        <MDText color="#497e91">Reply</MDText>
-      </TouchableOpacity>
     </View>
   )
 }
