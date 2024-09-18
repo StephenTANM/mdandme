@@ -6,8 +6,8 @@ const usePostMutation = () => {
   const queryClient = useQueryClient()
   const { mutate } = useMutation({
     mutationFn: updatePost,
-    onSuccess: async () => {
-      await queryClient.refetchQueries()
+    onSettled: async () => {
+      return await queryClient.invalidateQueries()
     },
   })
 

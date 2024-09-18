@@ -49,23 +49,22 @@ const InteractionBar: FC<Props> = ({
   const [replying, setReplying] = useState<boolean>(false)
   const [replyText, setReplyText] = useState<string>("")
 
-  // Shared value to control the scale for the heartbeat animation
   const scale = useSharedValue(1)
 
-  // Define the animation style
   const animatedStyles = useAnimatedStyle(() => ({
     transform: [{ scale: withTiming(scale.value, { duration: 200 }) }],
   }))
 
-  // Function to trigger the heartbeat animation
   const handleHeartPress = () => {
     scale.value = 1.5
     setTimeout(() => {
       scale.value = 1
     }, 200)
 
-    setHugged((prev) => !prev)
-    onHugPress(!hugged)
+    setHugged((prev) => {
+      onHugPress(!prev)
+      return !prev
+    })
   }
 
   const onReply = () => {

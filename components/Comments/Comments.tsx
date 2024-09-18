@@ -42,23 +42,24 @@ interface Props {
   onCommentReply: (_: { parent_id: number | null; text: string }) => void
 }
 
-const Comments: FC<Props> = ({ comments, onCommentReply }) => {
-  const groupedComments = groupComments(comments)
+// Comment item component
+interface CommentItemProps {
+  item: Comment & { children: Comment[] }
+  onCommentReply: (_: { parent_id: number | null; text: string }) => void
+}
+
+const CommentItem: FC<CommentItemProps> = ({ item, onCommentReply }) => {
   const [threadExpanded, setThreadExpanded] = useState<boolean>(false)
+
+  const onComment = (args: { parent_id: number | null }) => (text: string) => {
+    onCommentReply({ text, parent_id: args.parent_id })
+  }
 
   const expandThread = () => {
     setThreadExpanded((prev) => !prev)
   }
 
-  const onComment = (args: { parent_id?: number }) => (text: string) => {
-    onCommentReply({ text, parent_id: args.parent_id ?? null })
-  }
-
-  const renderItem = ({
-    item,
-  }: {
-    item: Comment & { children: Comment[] }
-  }) => (
+  return (
     <Animated.View entering={FadeInUp} style={{ backgroundColor: "white" }}>
       <View
         style={{
@@ -80,32 +81,40 @@ const Comments: FC<Props> = ({ comments, onCommentReply }) => {
       {threadExpanded &&
         item.children.length > 0 &&
         item.children.reverse().map((child) => (
-          <>
-            <Animated.View
-              entering={FadeInUp}
-              exiting={FadeOutUp}
-              key={`${child.id}${child.created_at}`}
-              style={{
-                paddingLeft: 50,
-                paddingVertical: 5,
-              }}
-            >
-              <VerticalLineWithCircle />
-              <Text style={{ fontWeight: "bold" }}>{child.display_name}</Text>
-              <Text>{child.text}</Text>
-              <Text style={{ color: "grey", marginTop: 5 }}>
-                {new Date(child.created_at).toLocaleString()}
-              </Text>
-              <InteractionBar
-                hasComments={false}
-                hasHugs={false}
-                onReplySend={onComment({ parent_id: item.id })}
-              />
-            </Animated.View>
-          </>
+          <Animated.View
+            entering={FadeInUp}
+            exiting={FadeOutUp}
+            key={JSON.stringify(child)}
+            style={{
+              paddingLeft: 50,
+              paddingVertical: 5,
+            }}
+          >
+            <VerticalLineWithCircle />
+            <Text style={{ fontWeight: "bold" }}>{child.display_name}</Text>
+            <Text>{child.text}</Text>
+            <Text style={{ color: "grey", marginTop: 5 }}>
+              {new Date(child.created_at).toLocaleString()}
+            </Text>
+            <InteractionBar
+              hasComments={false}
+              hasHugs={false}
+              onReplySend={onComment({ parent_id: item.id })}
+            />
+          </Animated.View>
         ))}
     </Animated.View>
   )
+}
+
+const Comments: FC<Props> = ({ comments, onCommentReply }) => {
+  const groupedComments = groupComments(comments)
+
+  const renderItem = ({
+    item,
+  }: {
+    item: Comment & { children: Comment[] }
+  }) => <CommentItem item={item} onCommentReply={onCommentReply} />
 
   return (
     <FlatList
