@@ -24,6 +24,7 @@ interface Props {
   readonly onHug: (_: boolean) => void
   readonly hugs: number
   readonly onReply: (_: string) => void
+  readonly onCommentReply: (_: { parent_id: number; text: string }) => void
 }
 
 const FeedCard: FC<Props> = ({
@@ -34,6 +35,7 @@ const FeedCard: FC<Props> = ({
   onExpand,
   onHug,
   onReply,
+  onCommentReply,
 }) => {
   const [postLayout, setPostLayout] = useState({
     x: 0,
@@ -68,6 +70,10 @@ const FeedCard: FC<Props> = ({
 
   const startReply = (text: string) => {
     onReply(text)
+  }
+
+  const commentReply = (args: { parent_id: number; text: string }) => {
+    onCommentReply(args)
   }
 
   const layoutHandle = (event: LayoutChangeEvent) => {
@@ -124,7 +130,9 @@ const FeedCard: FC<Props> = ({
           hugCount={hugs}
         />
       </View>
-      {showComments && <Comments comments={comments} />}
+      {showComments && (
+        <Comments comments={comments} onCommentReply={commentReply} />
+      )}
     </Animated.View>
   )
 }

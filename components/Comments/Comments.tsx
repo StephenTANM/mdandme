@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { FC, useState } from "react"
 import { View, Text, FlatList } from "react-native"
 import { Comment } from "@/requests"
 
@@ -9,7 +9,7 @@ import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated"
 
 const VerticalLineWithCircle = ({
   width = 50,
-  height = 70,
+  height = 150,
   lineColor = "grey",
   circleColor = "#C51104",
   strokeWidth = 2,
@@ -31,18 +31,27 @@ const VerticalLineWithCircle = ({
           strokeWidth={strokeWidth}
         />
 
-        <Circle cx={width / 2} cy={height / 2} r={5} fill={circleColor} />
+        <Circle cx={width / 2} cy={height / 4} r={5} fill={circleColor} />
       </Svg>
     </View>
   )
 }
 
-const Comments = ({ comments }: { comments: Record<string, Comment> }) => {
+interface Props {
+  comments: Record<string, Comment>
+  onCommentReply: (_: { parent_id: number | null; text: string }) => void
+}
+
+const Comments: FC<Props> = ({ comments, onCommentReply }) => {
   const groupedComments = groupComments(comments)
   const [threadExpanded, setThreadExpanded] = useState<boolean>(false)
 
   const expandThread = () => {
     setThreadExpanded((prev) => !prev)
+  }
+
+  const onComment = (args: { parent_id?: number }) => (text: string) => {
+    onCommentReply({ text, parent_id: args.parent_id ?? null })
   }
 
   const renderItem = ({
@@ -65,13 +74,12 @@ const Comments = ({ comments }: { comments: Record<string, Comment> }) => {
           commentCount={item.children.length}
           hasComments={item.children.length > 0}
           onCommentPress={expandThread}
-          onHugPress={() => {}}
-          onReplySend={() => {}}
+          onReplySend={onComment({ parent_id: item.id })}
         />
       </View>
       {threadExpanded &&
         item.children.length > 0 &&
-        item.children.map((child) => (
+        item.children.reverse().map((child) => (
           <>
             <Animated.View
               entering={FadeInUp}
@@ -88,7 +96,11 @@ const Comments = ({ comments }: { comments: Record<string, Comment> }) => {
               <Text style={{ color: "grey", marginTop: 5 }}>
                 {new Date(child.created_at).toLocaleString()}
               </Text>
-              <InteractionBar hasComments={false} hasHugs={false} />
+              <InteractionBar
+                hasComments={false}
+                hasHugs={false}
+                onReplySend={onComment({ parent_id: item.id })}
+              />
             </Animated.View>
           </>
         ))}

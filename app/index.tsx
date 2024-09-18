@@ -55,6 +55,22 @@ const Index = () => {
     })
   }
 
+  const sendCommentReply = (post: Post) => (commentReply: any) => {
+    mutate({
+      ...post,
+      comments: {
+        ...post.comments,
+        [Object.keys(post.comments).length + 1]: {
+          display_name: "You",
+          text: commentReply.text,
+          id: Object.keys(post.comments).length + 1,
+          parent_id: commentReply.parent_id,
+          created_at: new Date().toISOString(),
+        },
+      },
+    })
+  }
+
   const renderFeedCard = ({ item, index }: { item: Post; index: number }) => {
     const { assessment, title, id, comments, num_hugs } = item
     return (
@@ -67,6 +83,7 @@ const Index = () => {
         onExpand={focusPost(index)}
         hugs={num_hugs}
         onReply={sendReply(item)}
+        onCommentReply={sendCommentReply(item)}
       />
     )
   }
