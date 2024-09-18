@@ -36,14 +36,6 @@ const useFeed = (): UseFeedResult => {
     },
   })
 
-  const { mutate } = useMutation({
-    mutationFn: updatePost,
-
-    onSuccess: async () => {
-      await query.refetch()
-    },
-  })
-
   const posts = useMemo(
     () =>
       query.data?.pages.reduce<any[]>(
@@ -52,7 +44,8 @@ const useFeed = (): UseFeedResult => {
       ),
     [query.data]
   )
-  return { ...query, posts, mutate } as UseFeedResult
+
+  return { ...query, posts } as UseFeedResult
 }
 
 export default useFeed

@@ -24,7 +24,10 @@ interface Props {
   readonly onHug: (_: boolean) => void
   readonly hugs: number
   readonly onReply: (_: string) => void
-  readonly onCommentReply: (_: { parent_id: number; text: string }) => void
+  readonly onCommentReply: (_: {
+    parent_id: number | null
+    text: string
+  }) => void
 }
 
 const FeedCard: FC<Props> = ({
@@ -69,11 +72,12 @@ const FeedCard: FC<Props> = ({
   }
 
   const startReply = (text: string) => {
+    setShowComments(true)
     onReply(text)
   }
 
-  const commentReply = (args: { parent_id: number; text: string }) => {
-    onCommentReply(args)
+  const commentReply = (args: { parent_id: number | null; text: string }) => {
+    onCommentReply({ parent_id: args.parent_id, text: args.text })
   }
 
   const layoutHandle = (event: LayoutChangeEvent) => {

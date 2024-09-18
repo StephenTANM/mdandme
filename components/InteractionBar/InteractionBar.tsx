@@ -59,13 +59,13 @@ const InteractionBar: FC<Props> = ({
 
   // Function to trigger the heartbeat animation
   const handleHeartPress = () => {
-    onHugPress(!hugged)
-    setHugged(!hugged)
-    // Trigger the "beat" animation
     scale.value = 1.5
     setTimeout(() => {
       scale.value = 1
     }, 200)
+
+    setHugged((prev) => !prev)
+    onHugPress(!hugged)
   }
 
   const onReply = () => {

@@ -1,5 +1,5 @@
 import { FeedCard } from "@/components"
-import { useFeed } from "@/hooks"
+import { useFeed, usePostMutation } from "@/hooks"
 import { Post } from "@/requests"
 import { useRef } from "react"
 
@@ -14,60 +14,14 @@ import { StyleSheet } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 const Index = () => {
-  const { isFetching, data, fetchNextPage, posts, mutate } = useFeed()
+  const { isFetching, data, fetchNextPage, posts } = useFeed()
+  const { sendHug, sendReply, sendCommentReply } = usePostMutation()
   const flatListRef = useRef<FlatList>(null)
 
-  // const { height } = useGradualAnimation()
-
-  // const fakeView = useAnimatedStyle(() => {
-  //   return {
-  //     height: Math.abs(height.value),
-  //   }
-  // }, [])
-
   const focusPost = (index: number) => () => {
-    // Handle focus, if necessary (based on the platform)
     flatListRef.current?.scrollToIndex({
       index,
       animated: true,
-    })
-  }
-
-  const sendHug = (post: Post) => (hugged: boolean) => {
-    mutate({
-      ...post,
-      num_hugs: hugged ? post.num_hugs + 1 : post.num_hugs - 1,
-    })
-  }
-
-  const sendReply = (post: Post) => (text: string) => {
-    mutate({
-      ...post,
-      comments: {
-        ...post.comments,
-        [Object.keys(post.comments).length + 1]: {
-          display_name: "You",
-          text,
-          id: Object.keys(post.comments).length + 1,
-          created_at: new Date().toISOString(),
-        },
-      },
-    })
-  }
-
-  const sendCommentReply = (post: Post) => (commentReply: any) => {
-    mutate({
-      ...post,
-      comments: {
-        ...post.comments,
-        [Object.keys(post.comments).length + 1]: {
-          display_name: "You",
-          text: commentReply.text,
-          id: Object.keys(post.comments).length + 1,
-          parent_id: commentReply.parent_id,
-          created_at: new Date().toISOString(),
-        },
-      },
     })
   }
 
@@ -103,7 +57,7 @@ const Index = () => {
         <FlatList
           data={posts}
           renderItem={renderFeedCard}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => `${item.id.toString()}${item.created_at}`}
           contentContainerStyle={contentContainerStyle}
           onEndReached={() => {
             if (!isFetching) {
