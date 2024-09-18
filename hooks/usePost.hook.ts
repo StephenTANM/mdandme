@@ -7,6 +7,17 @@ const usePost = ({ id }: { id: string }) => {
   const query: UseQueryResult<any> = useQuery({
     queryKey: ["post", id],
     queryFn: () => getPostRequest({ id }),
+    placeholderData: {
+      post_url: "",
+      title: "",
+      created_at: "",
+      num_hugs: 0,
+      patient_description: "",
+      assessment: "",
+      question: "",
+      comments: {},
+      id: "",
+    },
   })
 
   const { mutate } = useMutation({

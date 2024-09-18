@@ -20,16 +20,22 @@ const index = () => {
   const { assessment, title, comments, num_hugs } = data
 
   return (
-    <FeedCard
-      onHug={sendHug(data)}
-      title={title}
-      content={assessment}
-      comments={comments}
-      hugs={num_hugs}
-      onReply={sendReply(data)}
-      onCommentReply={sendCommentReply(data)}
-      onExpand={() => {}}
-    />
+    <View
+      style={{
+        padding: 16,
+      }}
+    >
+      <FeedCard
+        onHug={sendHug(data)}
+        title={title}
+        content={assessment}
+        comments={comments}
+        hugs={num_hugs}
+        onReply={sendReply(data)}
+        onCommentReply={sendCommentReply(data)}
+        onExpand={() => {}}
+      />
+    </View>
   )
 }
 

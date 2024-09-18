@@ -84,7 +84,7 @@ const Comments: FC<Props> = ({ comments, onCommentReply }) => {
             <Animated.View
               entering={FadeInUp}
               exiting={FadeOutUp}
-              key={child.id}
+              key={`${child.id}${child.created_at}`}
               style={{
                 paddingLeft: 50,
                 paddingVertical: 5,
@@ -111,7 +111,7 @@ const Comments: FC<Props> = ({ comments, onCommentReply }) => {
     <FlatList
       style={{ backgroundColor: "white", padding: 16 }}
       data={groupedComments}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item) => `${item.id.toString()}${item.created_at}`}
       renderItem={renderItem}
     />
   )
