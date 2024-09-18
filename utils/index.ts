@@ -1,3 +1,5 @@
 import api from "./api"
 
-export { api }
+import groupComments from "./groupComments"
+
+export { api, groupComments }

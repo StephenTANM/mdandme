@@ -1,3 +1,3 @@
-import getFeedRequest, { Page, Post } from "./getFeed.request"
+import getFeedRequest, { Page, Post, Comment } from "./getFeed.request"
 
-export { getFeedRequest, Page, Post }
+export { getFeedRequest, Page, Post, Comment }

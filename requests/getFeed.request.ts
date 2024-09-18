@@ -5,7 +5,7 @@ type GetFeedRequestParams = {
   limit: number
 }
 
-type Comment = {
+export type Comment = {
   id: number
   parent_id: number | null
   display_name: string
@@ -23,16 +23,6 @@ export type Post = {
   question: string
   comments: Record<string, Comment>
   id: string
-}
-
-type PageData = {
-  first: number
-  prev: number | null
-  next: number | null
-  last: number
-  pages: number
-  items: number
-  data: Post[]
 }
 
 export type Page = {

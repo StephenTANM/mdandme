@@ -1,6 +1,12 @@
 import { getFeedRequest, Page, Post } from "@/requests"
+import updatePost from "@/requests/updatePost.request"
 
-import { useInfiniteQuery, UseInfiniteQueryResult } from "@tanstack/react-query"
+import {
+  useInfiniteQuery,
+  UseInfiniteQueryResult,
+  useMutation,
+  UseMutationResult,
+} from "@tanstack/react-query"
 import { useMemo } from "react"
 
 type PagesData = {
@@ -9,9 +15,10 @@ type PagesData = {
 }
 
 const DEFAULT_LIMIT = 5
-type UseFeedResult = UseInfiniteQueryResult<PagesData> & {
-  posts: Post[]
-}
+type UseFeedResult = UseInfiniteQueryResult<PagesData> &
+  UseMutationResult & {
+    posts: Post[]
+  }
 
 const useFeed = (): UseFeedResult => {
   const query: UseInfiniteQueryResult<PagesData> = useInfiniteQuery({
@@ -29,6 +36,13 @@ const useFeed = (): UseFeedResult => {
     },
   })
 
+  const { mutate } = useMutation({
+    mutationFn: updatePost,
+    onMutate: async () => {
+      await query.refetch()
+    },
+  })
+
   const posts = useMemo(
     () =>
       query.data?.pages.reduce<any[]>(
@@ -37,7 +51,7 @@ const useFeed = (): UseFeedResult => {
       ),
     [query.data]
   )
-  return { ...query, posts } as UseFeedResult
+  return { ...query, posts, mutate } as UseFeedResult
 }
 
 export default useFeed

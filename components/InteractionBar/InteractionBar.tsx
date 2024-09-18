@@ -1,0 +1,107 @@
+import { View, TouchableOpacity } from "react-native"
+import React, { FC, useState } from "react"
+import FontAwesome from "@expo/vector-icons/FontAwesome"
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
+
+import InteractionBarStyles from "./InteractionBar.styles"
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated"
+import MDText from "../MDText/MDText"
+
+const { containerStyle, interactionStyle } = InteractionBarStyles
+
+interface Props {
+  readonly commentCount?: number
+  readonly hasComments: boolean
+  readonly onHugPress?: (_: boolean) => void
+  readonly onCommentPress?: () => void
+  readonly onReplyPress?: () => void
+  readonly hasHugs?: boolean
+  readonly hugCount?: number
+}
+
+const InteractionBar: FC<Props> = ({
+  commentCount = 0,
+  hasComments,
+  onHugPress = () => {},
+  onCommentPress,
+  onReplyPress,
+  hasHugs,
+  hugCount,
+}) => {
+  const [hugged, setHugged] = useState(false)
+
+  // Shared value to control the scale for the heartbeat animation
+  const scale = useSharedValue(1)
+
+  // Define the animation style
+  const animatedStyles = useAnimatedStyle(() => ({
+    transform: [{ scale: withTiming(scale.value, { duration: 200 }) }],
+  }))
+
+  // Function to trigger the heartbeat animation
+  const handleHeartPress = () => {
+    onHugPress(!hugged)
+    setHugged(!hugged)
+    // Trigger the "beat" animation
+    scale.value = 1.5
+    setTimeout(() => {
+      scale.value = 1
+    }, 200)
+  }
+
+  return (
+    <View style={containerStyle}>
+      {hasHugs && (
+        <TouchableOpacity
+          onPress={handleHeartPress}
+          style={interactionStyle}
+          activeOpacity={0.8}
+        >
+          <Animated.View style={animatedStyles}>
+            <FontAwesome
+              name="heartbeat"
+              size={18}
+              color={hugged ? "#C51104" : "#497e91"}
+            />
+          </Animated.View>
+          <MDText color={hugged ? "white" : "#497e91"}>{hugCount} Hugs</MDText>
+        </TouchableOpacity>
+      )}
+
+      {hasComments && (
+        <TouchableOpacity
+          onPress={onCommentPress}
+          style={[
+            interactionStyle,
+            {
+              backgroundColor: "white",
+            },
+          ]}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="comments-o" size={24} color="#497e91" />
+          <MDText color="#497e91">{commentCount} Comments</MDText>
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity
+        onPress={onReplyPress}
+        style={[
+          interactionStyle,
+          {
+            backgroundColor: "white",
+          },
+        ]}
+        activeOpacity={0.8}
+      >
+        <MDText color="#497e91">Reply</MDText>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+export default InteractionBar
